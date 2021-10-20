@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3e84942d-dc53-46d7-9f06-e50b403db5e3" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="52a403ec-ad1e-47da-bd3a-b2d73e88d894">
+		<http:request-connection protocol="HTTPS">
+			<http:authentication >
+				<http:basic-authentication username="mifos" password="password" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<flow name="mifosprojectFlow" doc:id="9fbc0239-6e5a-468a-809e-418b0c737169" >
+		<http:listener doc:name="Listener" doc:id="67f1ec0c-6e5d-4b92-b937-81c1b295056c" config-ref="HTTP_Listener_config" path="/MifosApi"/>
+		<http:request method="GET" doc:name="Request" doc:id="370fbcb8-29c9-4779-8bb2-4beec4b93552" config-ref="HTTP_Request_configuration" url="https://52.221.180.158/fineract-provider/api/v1/offices?tenantIdentifier=default&amp;pretty=true">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"tenantIdentifier" : "default",
+	"pretty" : "true"
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="c5d62570-964c-425b-b44c-c8cddf1d1ade" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
